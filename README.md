@@ -3,7 +3,7 @@
 Projeto configurado para iniciar utilizando o docker-compose, com uma imagem do Elixir:latest, e a instalação do Phoenix 1.4.11 (Dockerfile dentro da pasta phoenix), e uma imagem do Postgres.
 
 Para iniciar a imagem do docker-compose:
-  docker-compose up
+  * docker-compose up
 
 To start your Phoenix server:
 
