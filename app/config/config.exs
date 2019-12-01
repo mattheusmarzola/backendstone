@@ -7,15 +7,15 @@
 # General application configuration
 use Mix.Config
 
-config :backendston,
-  ecto_repos: [Backendston.Repo]
+config :backendstone,
+  ecto_repos: [Backendstone.Repo]
 
 # Configures the endpoint
-config :backendston, BackendstonWeb.Endpoint,
+config :backendstone, BackendstoneWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "ZZDu/C4Rbo0yT2gzEnP+BEattX+lElGcPmMuBxh/wAVL0v+dwMwAfvB9cnjAq7jv",
-  render_errors: [view: BackendstonWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Backendston.PubSub, adapter: Phoenix.PubSub.PG2]
+  secret_key_base: "31bOojPtNviWZbjelh8uJBetSW/zN9ZH4gHTF2eKeHEdIOE81Q1A4ifCj7Fy0irc",
+  render_errors: [view: BackendstoneWeb.ErrorView, accepts: ~w(json)],
+  pubsub: [name: Backendstone.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,

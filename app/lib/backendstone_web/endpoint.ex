@@ -1,7 +1,7 @@
-defmodule BackendstonWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :backendston
+defmodule BackendstoneWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :backendstone
 
-  socket "/socket", BackendstonWeb.UserSocket,
+  socket "/socket", BackendstoneWeb.UserSocket,
     websocket: true,
     longpoll: false
 
@@ -11,15 +11,13 @@ defmodule BackendstonWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/",
-    from: :backendston,
+    from: :backendstone,
     gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
-    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
-    plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
   end
 
@@ -39,8 +37,8 @@ defmodule BackendstonWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
-    key: "_backendston_key",
-    signing_salt: "tYNTC+ku"
+    key: "_backendstone_key",
+    signing_salt: "rC0CjdJa"
 
-  plug BackendstonWeb.Router
+  plug BackendstoneWeb.Router
 end

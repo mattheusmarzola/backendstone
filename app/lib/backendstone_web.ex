@@ -1,12 +1,12 @@
-defmodule BackendstonWeb do
+defmodule BackendstoneWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, views, channels and so on.
 
   This can be used in your application as:
 
-      use BackendstonWeb, :controller
-      use BackendstonWeb, :view
+      use BackendstoneWeb, :controller
+      use BackendstoneWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -19,29 +19,26 @@ defmodule BackendstonWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: BackendstonWeb
+      use Phoenix.Controller, namespace: BackendstoneWeb
 
       import Plug.Conn
-      import BackendstonWeb.Gettext
-      alias BackendstonWeb.Router.Helpers, as: Routes
+      import BackendstoneWeb.Gettext
+      alias BackendstoneWeb.Router.Helpers, as: Routes
     end
   end
 
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/backendston_web/templates",
-        namespace: BackendstonWeb
+        root: "lib/backendstone_web/templates",
+        namespace: BackendstoneWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
 
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
-
-      import BackendstonWeb.ErrorHelpers
-      import BackendstonWeb.Gettext
-      alias BackendstonWeb.Router.Helpers, as: Routes
+      import BackendstoneWeb.ErrorHelpers
+      import BackendstoneWeb.Gettext
+      alias BackendstoneWeb.Router.Helpers, as: Routes
     end
   end
 
@@ -56,7 +53,7 @@ defmodule BackendstonWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import BackendstonWeb.Gettext
+      import BackendstoneWeb.Gettext
     end
   end
 

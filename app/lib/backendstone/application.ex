@@ -1,4 +1,4 @@
-defmodule Backendston.Application do
+defmodule Backendstone.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -9,23 +9,23 @@ defmodule Backendston.Application do
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
-      Backendston.Repo,
+      Backendstone.Repo,
       # Start the endpoint when the application starts
-      BackendstonWeb.Endpoint
-      # Starts a worker by calling: Backendston.Worker.start_link(arg)
-      # {Backendston.Worker, arg},
+      BackendstoneWeb.Endpoint
+      # Starts a worker by calling: Backendstone.Worker.start_link(arg)
+      # {Backendstone.Worker, arg},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Backendston.Supervisor]
+    opts = [strategy: :one_for_one, name: Backendstone.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    BackendstonWeb.Endpoint.config_change(changed, removed)
+    BackendstoneWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

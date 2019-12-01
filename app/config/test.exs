@@ -1,7 +1,7 @@
 use Mix.Config
 
 # Configure your database
-config :backendston, Backendston.Repo,
+config :backendstone, Backendstone.Repo,
   username: System.get_env("DATABASE_USERNAME"),
   password: System.get_env("DATABASE_PASSWORD"),
   database: System.get_env("DATABASE_DB"),
@@ -10,7 +10,7 @@ config :backendston, Backendston.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :backendston, BackendstonWeb.Endpoint,
+config :backendstone, BackendstoneWeb.Endpoint,
   http: [port: 4002],
   server: false
 
