@@ -1,0 +1,2 @@
+# Ignore postgres data
+/postgres/data/*

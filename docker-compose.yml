@@ -1,0 +1,32 @@
+version: "3" 
+services:
+  phoenix:
+    build:
+      context: ./phoenix
+    volumes:
+      - "./app:/app"
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: postgres
+      DATABASE_USERNAME: postgres
+      DATABASE_DB: backendston
+
+    command: 
+      - ./entrypoint.sh
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"
+    ports:
+      - "15432:5432"
+    expose:
+      - "5432"
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
