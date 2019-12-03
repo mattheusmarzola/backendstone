@@ -4,7 +4,7 @@ use Mix.Config
 config :backendstone, Backendstone.Repo,
   username: System.get_env("DATABASE_USERNAME"),
   password: System.get_env("DATABASE_PASSWORD"),
-  database: System.get_env("DATABASE_DB"),
+  database: System.get_env("DATABASE_DB") <> "_dev",
   hostname: System.get_env("DATABASE_HOST"),
   pool: Ecto.Adapters.SQL.Sandbox
 
@@ -16,3 +16,8 @@ config :backendstone, BackendstoneWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :backendstone, Guardian,
+  issuer: "backendstone",
+  secret_key: "JFnQRmiGSFG1Ank9//dRYyUn5yfVrTzPlZtt1ogDhZcl03J38NzDfklyMNFAg5mU",
+  serializer: Backendstone.GuardianSerializer

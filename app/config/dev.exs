@@ -55,3 +55,8 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :backendstone, Guardian,
+  issuer: "backendstone",
+  secret_key: "UAgjNfwMOk4grj68uC5k4qJXOXPr6KaJk4ShzKA7j2k4MEWkm4DNh9wg1uizLgw4",
+  serializer: Backendstone.GuardianSerializer
