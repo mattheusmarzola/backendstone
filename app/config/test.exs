@@ -4,7 +4,7 @@ use Mix.Config
 config :backendstone, Backendstone.Repo,
   username: System.get_env("DATABASE_USERNAME"),
   password: System.get_env("DATABASE_PASSWORD"),
-  database: System.get_env("DATABASE_DB") <> "_dev",
+  database: System.get_env("DATABASE_DB") <> "_test",
   hostname: System.get_env("DATABASE_HOST"),
   pool: Ecto.Adapters.SQL.Sandbox
 

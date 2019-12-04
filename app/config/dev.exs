@@ -4,7 +4,7 @@ use Mix.Config
 config :backendstone, Backendstone.Repo,
   username: System.get_env("DATABASE_USERNAME"),
   password: System.get_env("DATABASE_PASSWORD"),
-  database: System.get_env("DATABASE_DB"),
+  database: System.get_env("DATABASE_DB") <> "_dev",
   hostname: System.get_env("DATABASE_HOST"),
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
