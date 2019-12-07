@@ -16,8 +16,3 @@ config :backendstone, BackendstoneWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
-
-config :backendstone, Guardian,
-  issuer: "backendstone",
-  secret_key: "JFnQRmiGSFG1Ank9//dRYyUn5yfVrTzPlZtt1ogDhZcl03J38NzDfklyMNFAg5mU",
-  serializer: Backendstone.GuardianSerializer

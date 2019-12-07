@@ -36,3 +36,4 @@ config :backendstone, BackendstoneWeb.Endpoint,
 #
 # Then you can assemble a release by calling `mix release`.
 # See `mix help release` for more information.
+
