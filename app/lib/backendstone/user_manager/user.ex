@@ -7,8 +7,12 @@ defmodule Backendstone.UserManager.User do
 
   schema "users" do
     field :email, :string
-    field :password, :string
+    field :password_hash, :string
     field :username, :string
+
+    # Virtual fields:
+    field :password, :string, virtual: true
+    field :password_confirmation, :string, virtual: true
 
     has_one :account, Account
     timestamps()
@@ -17,8 +21,13 @@ defmodule Backendstone.UserManager.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:username, :password, :email])
-    |> validate_required([:username, :password, :email])
+    |> cast(attrs, [:username, :email, :password, :password_confirmation])
+    |> validate_required([:username, :email, :password, :password_confirmation])
+    |> validate_format(:email, ~r/@/)
+    |> validate_length(:password, min: 8)
+    |> validate_confirmation(:password)
+    |> unique_constraint(:username)
+    |> unique_constraint(:email)
     |> put_password_hash()
   end
 
