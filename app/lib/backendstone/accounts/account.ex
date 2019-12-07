@@ -16,7 +16,7 @@ defmodule Backendstone.Accounts.Account do
   @doc false
   def changeset(account, attrs) do
     account
-    |> cast(attrs, [:balance])
-    |> validate_required([:balance])
+    |> cast(attrs, [:balance, :user_id])
+    |> validate_required([:balance, :user_id])
   end
 end
