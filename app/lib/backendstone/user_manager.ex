@@ -4,10 +4,13 @@ defmodule Backendstone.UserManager do
   """
 
   import Ecto.Query, warn: false
-  
+
   alias Backendstone.Repo
   alias Backendstone.UserManager.User
+  alias Backendstone.Accounts.Account
   alias Argon2
+
+  @initial_balance 1000.00
 
   @doc """
   Returns the list of users.
@@ -39,6 +42,23 @@ defmodule Backendstone.UserManager do
   def get_user!(id), do: Repo.get!(User, id)
 
   @doc """
+  Gets a single user by username.
+
+  ## Examples
+
+      iex> get_user_by_username("foo@bar.com")
+      {:ok, %User{}}
+
+      iex> get_user_by_username("bar@foo.com")
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def get_user_by_username!(username) do
+    query = from u in User, where: u.username == ^username
+    Repo.one(query)
+  end
+
+  @doc """
   Creates a user.
 
   ## Examples
@@ -51,7 +71,7 @@ defmodule Backendstone.UserManager do
 
   """
   def create_user(attrs \\ %{}) do
-    %User{}
+    %User{account: %Account{balance: @initial_balance}}
     |> User.changeset(attrs)
     |> Repo.insert()
   end
@@ -103,21 +123,17 @@ defmodule Backendstone.UserManager do
     User.changeset(user, %{})
   end
 
-
-
-
-def authenticate_user(username, plain_text_password) do
-  query = from u in User, where: u.username == ^username
-  case Repo.one(query) do
-    nil ->
-      Argon2.no_user_verify()
-      {:error, :invalid_credentials}
-    user ->
-      if Argon2.verify_pass(plain_text_password, user.password) do
-        {:ok, user}
-      else
+  def authenticate_user(username, plain_text_password) do
+    case get_user_by_username!(username) do
+      nil ->
+        Argon2.no_user_verify()
         {:error, :invalid_credentials}
-      end
+      user ->
+        if Argon2.verify_pass(plain_text_password, user.password_hash) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
   end
-end
 end
