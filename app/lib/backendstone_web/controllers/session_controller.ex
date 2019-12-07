@@ -1,17 +1,10 @@
 defmodule BackendstoneWeb.SessionController do
   use BackendstoneWeb, :controller
 
-  alias Backendstone.{UserManager, UserManager.User, UserManager.Guardian}
-
-  def new(conn, _) do
-    changeset = UserManager.change_user(%User{})
-    maybe_user = Guardian.Plug.current_resource(conn)
-    if maybe_user do
-      redirect(conn, to: "/protected")
-    else
-      render(conn, "new.html", changeset: changeset, action: Routes.session_path(conn, :login))
-    end
-  end
+  alias Backendstone.{UserManager,
+    UserManager.User,
+    UserManager.Guardian,
+    UserManager.ErrorHandler}
 
   def login(conn, %{"user" => %{"username" => username, "password" => password}}) do
     UserManager.authenticate_user(username, password)
@@ -22,18 +15,21 @@ defmodule BackendstoneWeb.SessionController do
     conn
     |> Guardian.Plug.sign_out()
     |> redirect(to: "/login")
-  end               
+  end
 
   defp login_reply({:ok, user}, conn) do
+    {:ok, token, _claims} = Guardian.encode_and_sign(user)
+
     conn
-    |> put_flash(:info, "Welcome back!")
-    |> Guardian.Plug.sign_in(user)
-    |> redirect(to: "/protected")
+    |> put_status(:ok)
+    |> put_resp_header("location", Routes.user_path(conn, :show, user))
+    |> render("jwt.json", jwt: token)
   end
-                                               
-  defp login_reply({:error, reason}, conn) do
-    conn
-    |> put_flash(:error, to_string(reason))
-    |> new(%{})
+
+  defp login_reply({:error, reason}, _conn) do
+    {:error, :unauthorized}
   end
+
+
+
 end
