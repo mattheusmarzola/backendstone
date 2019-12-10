@@ -2,7 +2,7 @@ defmodule Backendstone.Transactions.Type do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Backendstone.Transactions.Type
+  alias Backendstone.Transactions.Transaction
 
   schema "types" do
     field :name, :string
@@ -16,5 +16,11 @@ defmodule Backendstone.Transactions.Type do
     type
     |> cast(attrs, [:name])
     |> validate_required([:name])
+  end
+
+  @doc false
+  def changeset_id(type, attrs) do
+    type
+    |> cast(attrs, [:name])
   end
 end
