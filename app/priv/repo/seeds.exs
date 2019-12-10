@@ -9,3 +9,15 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+[ %{name: "Withdrawal"},
+  %{name: "Deposit"},
+  %{name: "Transfer"}]
+|> Enum.map(&Backendstone.Transactions.create_type/1)
+
+[ %{name: "Pending"},
+  %{name: "Denied"},
+  %{name: "Executed"}]
+|> Enum.map(&Backendstone.Transactions.create_transaction_status/1)
+
+

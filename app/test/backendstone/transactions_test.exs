@@ -122,4 +122,63 @@ defmodule Backendstone.TransactionsTest do
       assert %Ecto.Changeset{} = Transactions.change_type(type)
     end
   end
+
+  describe "transaction_status" do
+    alias Backendstone.Transactions.TransactionStatus
+
+    @valid_attrs %{name: "some name"}
+    @update_attrs %{name: "some updated name"}
+    @invalid_attrs %{name: nil}
+
+    def transaction_status_fixture(attrs \\ %{}) do
+      {:ok, transaction_status} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Transactions.create_transaction_status()
+
+      transaction_status
+    end
+
+    test "list_transaction_status/0 returns all transaction_status" do
+      transaction_status = transaction_status_fixture()
+      assert Transactions.list_transaction_status() == [transaction_status]
+    end
+
+    test "get_transaction_status!/1 returns the transaction_status with given id" do
+      transaction_status = transaction_status_fixture()
+      assert Transactions.get_transaction_status!(transaction_status.id) == transaction_status
+    end
+
+    test "create_transaction_status/1 with valid data creates a transaction_status" do
+      assert {:ok, %TransactionStatus{} = transaction_status} = Transactions.create_transaction_status(@valid_attrs)
+      assert transaction_status.name == "some name"
+    end
+
+    test "create_transaction_status/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Transactions.create_transaction_status(@invalid_attrs)
+    end
+
+    test "update_transaction_status/2 with valid data updates the transaction_status" do
+      transaction_status = transaction_status_fixture()
+      assert {:ok, %TransactionStatus{} = transaction_status} = Transactions.update_transaction_status(transaction_status, @update_attrs)
+      assert transaction_status.name == "some updated name"
+    end
+
+    test "update_transaction_status/2 with invalid data returns error changeset" do
+      transaction_status = transaction_status_fixture()
+      assert {:error, %Ecto.Changeset{}} = Transactions.update_transaction_status(transaction_status, @invalid_attrs)
+      assert transaction_status == Transactions.get_transaction_status!(transaction_status.id)
+    end
+
+    test "delete_transaction_status/1 deletes the transaction_status" do
+      transaction_status = transaction_status_fixture()
+      assert {:ok, %TransactionStatus{}} = Transactions.delete_transaction_status(transaction_status)
+      assert_raise Ecto.NoResultsError, fn -> Transactions.get_transaction_status!(transaction_status.id) end
+    end
+
+    test "change_transaction_status/1 returns a transaction_status changeset" do
+      transaction_status = transaction_status_fixture()
+      assert %Ecto.Changeset{} = Transactions.change_transaction_status(transaction_status)
+    end
+  end
 end
