@@ -38,6 +38,22 @@ defmodule Backendstone.Accounts do
   def get_account!(id), do: Repo.get!(Account, id)
 
   @doc """
+  Gets a single account by user_id.
+
+  Raises `Ecto.NoResultsError` if the Account does not exist.
+
+  ## Examples
+
+      iex> get_account_by_user_id!(123)
+      %Account{}
+
+      iex> get_account_by_user_id!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_account_by_user_id!(id), do: Repo.get_by!(Account, user_id: id)
+
+  @doc """
   Creates a account.
 
   ## Examples
