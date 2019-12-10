@@ -13,8 +13,4 @@ defmodule BackendstoneWeb.UserView do
     }
   end
 
-  def render("jwt.json", %{jwt: jwt}) do
-    %{jwt: jwt}
-  end
-
 end

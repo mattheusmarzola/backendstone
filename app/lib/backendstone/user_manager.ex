@@ -10,7 +10,7 @@ defmodule Backendstone.UserManager do
   alias Backendstone.Accounts.Account
   alias Argon2
 
-  @initial_balance 1000.00
+  @initial_deposit 1000.00
 
   @doc """
   Returns the list of users.
@@ -54,12 +54,11 @@ defmodule Backendstone.UserManager do
 
   """
   def get_user_by_username!(username) do
-    query = from u in User, where: u.username == ^username
-    Repo.one(query)
+    Repo.get_by!(User, username: username)
   end
 
   @doc """
-  Creates a user.
+  Creates a user and account applying the initial deposit.
 
   ## Examples
 
@@ -71,7 +70,7 @@ defmodule Backendstone.UserManager do
 
   """
   def create_user(attrs \\ %{}) do
-    %User{account: %Account{balance: @initial_balance}}
+    %User{account: %Account{balance: @initial_deposit}}
     |> User.changeset(attrs)
     |> Repo.insert()
   end
