@@ -12,17 +12,18 @@ defmodule BackendstoneWeb.TransactionController do
   end
 
   def create(conn, %{"transaction" => transaction_params}) do
-    with {:ok, %Transaction{} = transaction} <- Transactions.create_transaction(transaction_params) do
+    user = Guardian.Plug.current_resource(conn)
+
+    with {:ok, %Transaction{} = transaction} <- Transactions.create_transaction(user, transaction_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.transaction_path(conn, :show, transaction))
-      |> render("show.json", transaction: transaction)
+      |> render("transaction.json", transaction: transaction)
     end
   end
 
   def show(conn, %{"id" => id}) do
     transaction = Transactions.get_transaction!(id)
-    render(conn, "show.json", transaction: transaction)
+    render(conn, "transaction.json", transaction: transaction)
   end
 
   def update(conn, %{"id" => id, "transaction" => transaction_params}) do
