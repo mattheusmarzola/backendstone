@@ -9,7 +9,7 @@ defmodule Backendstone.Accounts.Account do
     field :balance, :decimal
 
     belongs_to :user, User
-    has_many :transaction, Transaction
+    has_many :transactions, Transaction
     timestamps()
   end
 
