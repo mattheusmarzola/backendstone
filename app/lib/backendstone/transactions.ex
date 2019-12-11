@@ -12,6 +12,10 @@ defmodule Backendstone.Transactions do
   alias Decimal
 
   @initial_transaction_status 1
+  @transaction_type_withdrawal 1
+  @transaction_type_deposit 2
+  @transaction_status_denied 2
+  @transaction_status_executed 3
 
   @doc """
     Returns the amount of initial deposit.
@@ -89,40 +93,69 @@ defmodule Backendstone.Transactions do
 
   def process_transaction(transaction, user) do
     case transaction do
-      %Transaction{type_id: 1} -> process_withdrawal(transaction, user)
+      %Transaction{type_id: @transaction_type_withdrawal} -> process_withdrawal(transaction, user)
+      %Transaction{type_id: @transaction_type_deposit} -> process_deposit(transaction, user)
       _ -> {:error, "Invalid Transaction"}
     end
+  end
+
+  def process_deposit(transaction, user) do
+    account = Accounts.get_account!(transaction.account_id)
+
+    account
+     |> add_transaction(transaction)
+     |> (&(Accounts.update_account(account, %{balance: &1}))).()
+
+    update_transaction(transaction, %{transaction_status_id: @transaction_status_executed})
+     |> process_reply()
   end
 
   def process_withdrawal(transaction, user) do
     account = Accounts.get_account!(transaction.account_id)
 
-    with {:ok, %Transaction{} = transaction} <- has_funds?(account, transaction) do
-      apply_transaction(account, transaction)
-       |> (&(Accounts.update_account(account, %{balance: &1}))).()
-
-      update_transaction(transaction, %{transaction_status_id: 3})
-      |> process_reply()
-    end
+    account
+    |> has_funds?(transaction)
+    |> apply_withdrawal(account)
   end
 
+  def apply_withdrawal({:error, %Transaction{} = transaction}, _account) do
+    update_transaction(transaction, %{transaction_status_id: @transaction_status_denied})
+
+    {:ok, transaction}
+    |> process_reply()
+  end
+
+  def apply_withdrawal({:ok, %Transaction{} = transaction}, account) do
+    sub_transaction(account, transaction)
+     |> (&(Accounts.update_account(account, %{balance: &1}))).()
+
+    update_transaction(transaction, %{transaction_status_id: @transaction_status_executed})
+     |> process_reply()
+  end
+
+
   def process_reply({:ok, %Transaction{} = transaction}), do: {:ok, get_transaction!(transaction.id)}
-  def process_reply({:error, reason}), do: {:error, reason}
+  def process_reply({:error, transaction}), do: {:error, transaction}
 
   def has_funds?(account, transaction) do
     has_funds =
-      apply_transaction(account, transaction)
+      sub_transaction(account, transaction)
       |> Decimal.positive?()
 
     case has_funds do
-      true -> {:ok, %Transaction{} = transaction}
-      false -> {:error, "insufficient funds"}
+      true -> {:ok, transaction}
+      false -> {:error, transaction}
     end
   end
 
-  def apply_transaction(account, transaction) do
+  def sub_transaction(account, transaction) do
     Decimal.new(account.balance)
       |> Decimal.sub(transaction.amount)
+  end
+
+  def add_transaction(account, transaction) do
+    Decimal.new(account.balance)
+      |> Decimal.add(transaction.amount)
   end
 
   @doc """
