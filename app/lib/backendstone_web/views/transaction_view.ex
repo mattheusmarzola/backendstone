@@ -12,7 +12,11 @@ defmodule BackendstoneWeb.TransactionView do
 
   def render("transaction.json", %{transaction: transaction}) do
     %{id: transaction.id,
+      type: %{id: transaction.type.id,
+             name: transaction.type.name},
       amount: transaction.amount,
-      account_to: transaction.account_to}
+      account_to: transaction.account_to,
+      transaction_status: %{id: transaction.transaction_status.id,
+                           name: transaction.transaction_status.name}}
   end
 end
