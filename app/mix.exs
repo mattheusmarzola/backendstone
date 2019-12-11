@@ -20,7 +20,7 @@ defmodule Backendstone.MixProject do
   def application do
     [
       mod: {Backendstone.Application, []},
-      extra_applications: [:logger, :runtime_tools, :guardian]
+      extra_applications: [:logger, :runtime_tools, :guardian, :bamboo]
     ]
   end
 
@@ -43,7 +43,8 @@ defmodule Backendstone.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:guardian, "~> 2.0"},
       {:comeonin, "~> 5.1"},
-      {:argon2_elixir, "~> 2.1"}
+      {:argon2_elixir, "~> 2.1"},
+      {:bamboo, "~> 1.3"}
     ]
   end
 

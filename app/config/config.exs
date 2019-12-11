@@ -33,3 +33,7 @@ import_config "#{Mix.env()}.exs"
 config :backendstone, Backendstone.UserManager.Guardian,
        issuer: "backendstone",
        secret_key: "qPLj1A3qCXqHNYG264W4KXyyjfuCCCgM5bfQ2NgdbHbZd7dmzuEwbmFF/ggzcDFx"
+
+# Bamboo config
+config :backendstone, Backendstone.Email.Mailer,
+  adapter: Bamboo.TestAdapter
