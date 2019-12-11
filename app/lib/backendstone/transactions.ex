@@ -7,7 +7,9 @@ defmodule Backendstone.Transactions do
   alias Backendstone.Repo
 
   alias Backendstone.Transactions.Transaction
+  alias Backendstone.Accounts.Account
   alias Backendstone.Accounts
+  alias Decimal
 
   @initial_transaction_status 1
 
@@ -48,28 +50,79 @@ defmodule Backendstone.Transactions do
       ** (Ecto.NoResultsError)
 
   """
-  def get_transaction!(id), do: Repo.get!(Transaction, id)
+  def get_transaction!(id) do
+    Repo.get!(Transaction, id)
+    |> Repo.preload(:transaction_status)
+    |> Repo.preload(:type)
+  end
 
   @doc """
   Creates a transaction.
 
   ## Examples
 
-      iex> create_transaction(%{field: value})
+      iex> create_transaction(%User{id: 1}, %{field: value})
       {:ok, %Transaction{}}
 
-      iex> create_transaction(%{field: bad_value})
+      iex> create_transaction(%User{id: nil}, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
   def create_transaction(user, attrs \\ %{}) do
     attrs = attrs
-    |> put_account(user)
-    |> put_initial_transaction_status()
+    |> put_account!(user)
+    |> put_initial_transaction_status!()
 
-    %Transaction{}
-    |> Transaction.changeset(attrs)
-    |> Repo.insert()
+    {:ok, transaction} =
+      %Transaction{}
+      |> Transaction.changeset(attrs)
+      |> Repo.insert()
+
+    result = start_transaction(transaction, user)
+
+    result
+  end
+
+  def start_transaction(transaction, user) do
+    process_transaction(transaction, user)
+  end
+
+  def process_transaction(transaction, user) do
+    case transaction do
+      %Transaction{type_id: 1} -> process_withdrawal(transaction, user)
+      _ -> {:error, "Invalid Transaction"}
+    end
+  end
+
+  def process_withdrawal(transaction, user) do
+    account = Accounts.get_account!(transaction.account_id)
+
+    with {:ok, %Transaction{} = transaction} <- has_funds?(account, transaction) do
+      apply_transaction(account, transaction)
+       |> (&(Accounts.update_account(account, %{balance: &1}))).()
+
+      update_transaction(transaction, %{transaction_status_id: 3})
+      |> process_reply()
+    end
+  end
+
+  def process_reply({:ok, %Transaction{} = transaction}), do: {:ok, get_transaction!(transaction.id)}
+  def process_reply({:error, reason}), do: {:error, reason}
+
+  def has_funds?(account, transaction) do
+    has_funds =
+      apply_transaction(account, transaction)
+      |> Decimal.positive?()
+
+    case has_funds do
+      true -> {:ok, %Transaction{} = transaction}
+      false -> {:error, "insufficient funds"}
+    end
+  end
+
+  def apply_transaction(account, transaction) do
+    Decimal.new(account.balance)
+      |> Decimal.sub(transaction.amount)
   end
 
   @doc """
@@ -80,7 +133,7 @@ defmodule Backendstone.Transactions do
       iex> put_initial_transaction_status( %{"amount" => 100.0, "type" => %{"id" => 1}})
       %{"amount" => 100.0, "type" => %{"id" => 1}, "transaction_status_id" =>  1}
   """
-  defp put_initial_transaction_status(attrs) do
+  defp put_initial_transaction_status!(attrs) do
     attrs
     |> Map.put("transaction_status_id", @initial_transaction_status)
   end
@@ -90,13 +143,11 @@ defmodule Backendstone.Transactions do
 
   ## Examples
 
-      iex> get_account_by_user_id!( %{"amount" => 100.0, "type" => %{"id" => 1}})
+      iex> put_account!(%{"amount" => 100.0, "type" => %{"id" => 1}})
       %{"amount" => 100.0, "type" => %{"id" => 1}, "account_id" =>  1}
   """
-  defp put_account(attrs, user) do
+  defp put_account!(attrs, user) do
     account = Accounts.get_account_by_user_id!(user.id)
-
-    IO.inspect(account)
 
     attrs
     |> Map.put("account_id", account.id)
