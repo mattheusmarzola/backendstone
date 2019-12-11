@@ -22,7 +22,6 @@ defmodule BackendstoneWeb.SessionController do
 
     conn
     |> put_status(:ok)
-    |> put_resp_header("location", Routes.user_path(conn, :show, user))
     |> render("jwt.json", jwt: token)
   end
 

@@ -26,12 +26,11 @@ defmodule BackendstoneWeb.Router do
     pipe_through [:api, :jwt_authenticated]
 
     get "/users", UserController, :show
-    resources "/accounts", AccountController, only: [:show]
+    get "/accounts", AccountController, :show
 
-    post "/transactions", TransactionController, :create
-    get "/transactions", TransactionController, :show
+    resources "/transactions", TransactionController, [:create, :show]
 
-    get "/transactions/types", TypeController, :index
-    get "/transactions/status", TransactionStatusController, :index
+    get "/types/transactions/", TypeController, :index
+    get "/status/transactions/", TransactionStatusController, :index
   end
 end
