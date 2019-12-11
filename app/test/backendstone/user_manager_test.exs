@@ -6,16 +6,28 @@ defmodule Backendstone.UserManagerTest do
   describe "users" do
     alias Backendstone.UserManager.User
 
-    @valid_attrs %{email: "some email", password: "some password", username: "some username"}
-    @update_attrs %{email: "some updated email", password: "some updated password", username: "some updated username"}
-    @invalid_attrs %{email: nil, password: nil, username: nil}
+    @valid_attrs %{
+      email: "some@email.com",
+      password: "some password",
+      password_confirmation: "some password",
+      username: "someusername"
+    }
+
+    @update_attrs %{
+      email: "some@updated.email",
+      password: "some updated password",
+      password_confirmation: "some updated password",
+      username: "someupdatedusername"
+    }
+
+    @invalid_attrs %{email: nil, password: nil, password_confirmation: nil, username: nil}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
         attrs
         |> Enum.into(@valid_attrs)
         |> UserManager.create_user()
-
+      user = UserManager.get_user!(user.id)
       user
     end
 
@@ -32,8 +44,8 @@ defmodule Backendstone.UserManagerTest do
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = UserManager.create_user(@valid_attrs)
       assert {:ok, user} == Argon2.check_pass(user, "some password", hash_key: :password)
-      assert user.email == "some email"
-      assert user.username == "some username"
+      assert user.email == "some@email.com"
+      assert user.username == "someusername"
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -44,8 +56,8 @@ defmodule Backendstone.UserManagerTest do
       user = user_fixture()
       assert {:ok, %User{} = user} = UserManager.update_user(user, @update_attrs)
       assert {:ok, user} == Argon2.check_pass(user, "some updated password", hash_key: :password)
-      assert user.email == "some updated email"  
-      assert user.username == "some updated username"
+      assert user.email == "some@updated.email"
+      assert user.username == "someupdatedusername"
     end
 
     test "update_user/2 with invalid data returns error changeset" do

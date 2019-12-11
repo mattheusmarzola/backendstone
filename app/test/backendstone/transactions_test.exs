@@ -2,6 +2,7 @@ defmodule Backendstone.TransactionsTest do
   use Backendstone.DataCase
 
   alias Backendstone.Transactions
+  alias Backendstone.UserManagerTest
 
   describe "transactions" do
     alias Backendstone.Transactions.Transaction
@@ -11,10 +12,12 @@ defmodule Backendstone.TransactionsTest do
     @invalid_attrs %{account_to: nil, amount: nil}
 
     def transaction_fixture(attrs \\ %{}) do
-      {:ok, transaction} =
+      attrs =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Transactions.create_transaction()
+
+      user = UserManagerTest.user_fixture()
+      {:ok, transaction} = Transactions.create_transaction(user, attrs)
 
       transaction
     end
