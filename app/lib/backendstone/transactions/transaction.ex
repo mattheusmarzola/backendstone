@@ -20,6 +20,6 @@ defmodule Backendstone.Transactions.Transaction do
   def changeset(transaction, attrs) do
     transaction
     |> cast(attrs, [:amount, :account_to, :type_id, :transaction_status_id, :account_id])
-    |> validate_required([:amount])
+    |> validate_required([:amount, :type_id, :transaction_status_id, :account_id])
   end
 end
