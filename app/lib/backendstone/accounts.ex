@@ -9,6 +9,45 @@ defmodule Backendstone.Accounts do
   alias Backendstone.Accounts.Account
 
   @doc """
+  Receives a account and the value of debit and update the account balance.
+
+  ## Examples
+
+      iex> debit_amount(account, %{amount: "100.00"})
+      {:ok, %Account{}}
+
+      iex> debit_amount(account, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def debit_amount(account, %{amount: amount}) do
+    Decimal.new(account.balance)
+     |> Decimal.sub(amount)
+     |> (&(Map.put(%{}, :balance, &1))).()
+     |> (&(update_account(account, &1))).()
+  end
+
+  @doc """
+  Receives a account and the value of credit and update the account balance.
+
+  ## Examples
+
+      iex> credit_amount(account, %{amount: "100.00"})
+      {:ok, %Account{}}
+
+      iex> credit_amount(account, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def credit_amount(account, %{amount: amount}) do
+    Decimal.new(account.balance)
+     |> Decimal.add(amount)
+     |> (&(Map.put(%{}, :balance, &1))).()
+     |> (&(update_account(account, &1))).()
+  end
+
+
+  @doc """
   Returns the list of accounts.
 
   ## Examples
