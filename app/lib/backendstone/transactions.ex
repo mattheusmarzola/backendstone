@@ -18,16 +18,6 @@ defmodule Backendstone.Transactions do
   @transaction_status_executed 3
 
   @doc """
-    Returns the amount of initial deposit.
-
-    ## Examples
-
-      iex> get_initial_deposit_amount()
-      1000.00
-  """
-  def get_initial_deposit_amount, do: @initial_deposit
-
-  @doc """
   Returns the list of transactions.
 
   ## Examples
@@ -58,6 +48,8 @@ defmodule Backendstone.Transactions do
     Repo.get!(Transaction, id)
     |> Repo.preload(:transaction_status)
     |> Repo.preload(:type)
+    |> Repo.preload(:account)
+    |> Repo.preload(:target_account)
   end
 
   @doc """
@@ -88,74 +80,54 @@ defmodule Backendstone.Transactions do
   end
 
   def start_transaction(transaction, user) do
-    process_transaction(transaction, user)
+    get_transaction!(transaction.id)
+    |> has_funds?()
+    |> process_transaction()
+    |> finalize_transaction()
   end
 
-  def process_transaction(transaction, user) do
-    case transaction do
-      %Transaction{type_id: @transaction_type_withdrawal} -> process_withdrawal(transaction, user)
-      %Transaction{type_id: @transaction_type_deposit} -> process_deposit(transaction, user)
-      _ -> {:error, "Invalid Transaction"}
-    end
-  end
-
-  def process_deposit(transaction, user) do
-    account = Accounts.get_account!(transaction.account_id)
-
-    account
-     |> add_transaction(transaction)
-     |> (&(Accounts.update_account(account, %{balance: &1}))).()
-
-    update_transaction(transaction, %{transaction_status_id: @transaction_status_executed})
-     |> process_reply()
-  end
-
-  def process_withdrawal(transaction, user) do
-    account = Accounts.get_account!(transaction.account_id)
-
-    account
-    |> has_funds?(transaction)
-    |> apply_withdrawal(account)
-  end
-
-  def apply_withdrawal({:error, %Transaction{} = transaction}, _account) do
-    update_transaction(transaction, %{transaction_status_id: @transaction_status_denied})
-
-    {:ok, transaction}
-    |> process_reply()
-  end
-
-  def apply_withdrawal({:ok, %Transaction{} = transaction}, account) do
-    sub_transaction(account, transaction)
-     |> (&(Accounts.update_account(account, %{balance: &1}))).()
-
-    update_transaction(transaction, %{transaction_status_id: @transaction_status_executed})
-     |> process_reply()
-  end
-
-
-  def process_reply({:ok, %Transaction{} = transaction}), do: {:ok, get_transaction!(transaction.id)}
-  def process_reply({:error, transaction}), do: {:error, transaction}
-
-  def has_funds?(account, transaction) do
+  def has_funds?(%Transaction{type_id: @transaction_type_deposit} = transaction), do: {:ok, transaction}
+  def has_funds?(%Transaction{} = transaction) do
     has_funds =
-      sub_transaction(account, transaction)
+      Decimal.new(transaction.account.balance)
+      |> Decimal.sub(transaction.amount)
       |> Decimal.positive?()
 
     case has_funds do
       true -> {:ok, transaction}
-      false -> {:error, transaction}
+      false -> {:without_funds, transaction}
     end
   end
 
-  def sub_transaction(account, transaction) do
-    Decimal.new(account.balance)
-      |> Decimal.sub(transaction.amount)
+  def process_transaction({:without_funds, %Transaction{} = transaction}), do: {:without_funds, transaction}
+  def process_transaction({:ok, %Transaction{} = transaction}) do
+    case transaction do
+      %Transaction{type_id: @transaction_type_withdrawal} -> process_withdrawal(transaction, transaction.account)
+      %Transaction{type_id: @transaction_type_deposit} -> process_deposit(transaction, transaction.account)
+      _ -> {:error, "Invalid Transaction"}
+    end
   end
 
-  def add_transaction(account, transaction) do
-    Decimal.new(account.balance)
-      |> Decimal.add(transaction.amount)
+  def process_deposit({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
+  def process_deposit({:ok, %Transaction{} = transaction}, account) do
+    with {:ok, _} <- Accounts.credit_amount(account, transaction) do
+      {:ok, %Transaction{} = transaction}
+    end
+  end
+
+  def process_withdrawal({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
+  def process_withdrawal({:ok, %Transaction{} = transaction}, account) do
+    with {:ok, _} <- Accounts.debit_amount(account, transaction) do
+      {:ok, %Transaction{} = transaction}
+    end
+  end
+
+  def finalize_transaction({:without_funds, %Transaction{} = transaction}) do
+    update_transaction(transaction, %{transaction_status_id: @transaction_status_denied})
+  end
+
+  def finalize_transaction({:ok, %Transaction{} = transaction}) do
+    update_transaction(transaction, %{transaction_status_id: @transaction_status_executed})
   end
 
   @doc """
