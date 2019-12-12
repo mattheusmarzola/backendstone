@@ -5,10 +5,10 @@ defmodule BackendstoneWeb.TransactionControllerTest do
   alias Backendstone.UserManagerTest
 
   @create_attrs %{
-    account_to: 42,
+    target_account_id: 42,
     amount: "120.5"
   }
-  @invalid_attrs %{account_to: nil, amount: nil}
+  @invalid_attrs %{target_account_id: nil, amount: nil}
 
   def fixture(:transaction) do
     {:ok, transaction} = Transactions.create_transaction(@create_attrs)
@@ -35,7 +35,7 @@ defmodule BackendstoneWeb.TransactionControllerTest do
 
       assert %{
                "id" => id,
-               "account_to" => 42,
+               "target_account" => 42,
                "amount" => "120.5"
              } = json_response(conn, 200)["data"]
     end

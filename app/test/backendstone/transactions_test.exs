@@ -7,9 +7,9 @@ defmodule Backendstone.TransactionsTest do
   describe "transactions" do
     alias Backendstone.Transactions.Transaction
 
-    @valid_attrs %{account_to: 42, amount: "120.5"}
-    @update_attrs %{account_to: 43, amount: "456.7"}
-    @invalid_attrs %{account_to: nil, amount: nil}
+    @valid_attrs %{target_account_id: 42, amount: "120.5"}
+    @update_attrs %{target_account_id: 43, amount: "456.7"}
+    @invalid_attrs %{target_account_id: nil, amount: nil}
 
     def transaction_fixture(attrs \\ %{}) do
       attrs =
@@ -34,7 +34,7 @@ defmodule Backendstone.TransactionsTest do
 
     test "create_transaction/1 with valid data creates a transaction" do
       assert {:ok, %Transaction{} = transaction} = Transactions.create_transaction(@valid_attrs)
-      assert transaction.account_to == 42
+      assert transaction.target_account_id == 42
       assert transaction.amount == Decimal.new("120.5")
     end
 
@@ -45,7 +45,7 @@ defmodule Backendstone.TransactionsTest do
     test "update_transaction/2 with valid data updates the transaction" do
       transaction = transaction_fixture()
       assert {:ok, %Transaction{} = transaction} = Transactions.update_transaction(transaction, @update_attrs)
-      assert transaction.account_to == 43
+      assert transaction.target_account_id == 43
       assert transaction.amount == Decimal.new("456.7")
     end
 
