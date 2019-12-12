@@ -12,7 +12,7 @@
 
 [ %{name: "Withdrawal"},
   %{name: "Deposit"},
-  %{name: "Transfer"}]
+  %{name: "Transference"}]
 |> Enum.map(&Backendstone.Transactions.create_type/1)
 
 [ %{name: "Pending"},
