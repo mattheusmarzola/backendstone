@@ -9,11 +9,13 @@ defmodule Backendstone.Transactions do
   alias Backendstone.Transactions.Transaction
   alias Backendstone.Accounts.Account
   alias Backendstone.Accounts
+  alias Backendstone.Email.{Email, Mailer}
   alias Decimal
 
   @initial_transaction_status 1
   @transaction_type_withdrawal 1
   @transaction_type_deposit 2
+  @transaction_type_transference 3
   @transaction_status_denied 2
   @transaction_status_executed 3
 
@@ -69,20 +71,16 @@ defmodule Backendstone.Transactions do
     |> put_account!(user)
     |> put_initial_transaction_status!()
 
-    {:ok, transaction} =
-      %Transaction{}
-      |> Transaction.changeset(attrs)
-      |> Repo.insert()
-
-    result = start_transaction(transaction, user)
-
-    result
+    %Transaction{}
+     |> Transaction.changeset(attrs)
+     |> Repo.insert()
   end
 
   def start_transaction(transaction, user) do
     get_transaction!(transaction.id)
     |> has_funds?()
     |> process_transaction()
+    |> send_email(user)
     |> finalize_transaction()
   end
 
@@ -104,30 +102,53 @@ defmodule Backendstone.Transactions do
     case transaction do
       %Transaction{type_id: @transaction_type_withdrawal} -> process_withdrawal(transaction, transaction.account)
       %Transaction{type_id: @transaction_type_deposit} -> process_deposit(transaction, transaction.account)
+      %Transaction{type_id: @transaction_type_transference} -> process_transference(transaction)
       _ -> {:error, "Invalid Transaction"}
     end
   end
 
-  def process_deposit({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
-  def process_deposit({:ok, %Transaction{} = transaction}, account) do
+  def process_deposit(%Transaction{} = transaction, account) do
     with {:ok, _} <- Accounts.credit_amount(account, transaction) do
       {:ok, %Transaction{} = transaction}
     end
   end
 
-  def process_withdrawal({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
-  def process_withdrawal({:ok, %Transaction{} = transaction}, account) do
+  def process_withdrawal(%Transaction{} = transaction, account) do
     with {:ok, _} <- Accounts.debit_amount(account, transaction) do
       {:ok, %Transaction{} = transaction}
     end
   end
 
+  def process_transference(%Transaction{} = transaction) do
+    IO.inspect(transaction)
+    with {:ok, _} <- process_withdrawal(transaction, transaction.account),
+                      process_deposit(transaction, transaction.target_account) do
+      {:ok, %Transaction{} = transaction}
+    end
+  end
+
+  def send_email({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
+  def send_email({:ok, %Transaction{type_id: @transaction_type_withdrawal} = transaction}, user) do
+    case transaction do
+      %Transaction{type_id: @transaction_type_withdrawal} ->  Email.withdrawal_email(user, transaction)
+                                                               |> Mailer.deliver_now()
+      _ -> {:ok, transaction}
+    end
+
+    {:ok, %Transaction{} = transaction}
+  end
+  def send_email({:ok, %Transaction{} = transaction}, _), do: {:ok, transaction}
+
   def finalize_transaction({:without_funds, %Transaction{} = transaction}) do
-    update_transaction(transaction, %{transaction_status_id: @transaction_status_denied})
+    with {:ok, _} <- update_transaction(transaction, %{transaction_status_id: @transaction_status_denied}) do
+      {:ok, get_transaction!(transaction.id)}
+    end
   end
 
   def finalize_transaction({:ok, %Transaction{} = transaction}) do
-    update_transaction(transaction, %{transaction_status_id: @transaction_status_executed})
+    with {:ok, _} <- update_transaction(transaction, %{transaction_status_id: @transaction_status_executed}) do
+      {:ok, get_transaction!(transaction.id)}
+    end
   end
 
   @doc """

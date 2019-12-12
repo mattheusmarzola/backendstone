@@ -15,7 +15,7 @@ defmodule BackendstoneWeb.TransactionView do
       type: %{id: transaction.type.id,
              name: transaction.type.name},
       amount: transaction.amount,
-      target_account_id: transaction.target_account.id,
+      target_account_id: transaction.target_account_id,
       transaction_status: %{id: transaction.transaction_status.id,
                            name: transaction.transaction_status.name}}
   end
