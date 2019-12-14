@@ -11,10 +11,14 @@ defmodule Backendstone.Application do
       # Start the Ecto repository
       Backendstone.Repo,
       # Start the endpoint when the application starts
-      BackendstoneWeb.Endpoint
+      BackendstoneWeb.Endpoint,
       # Starts a worker by calling: Backendstone.Worker.start_link(arg)
       # {Backendstone.Worker, arg},
+      {Registry, keys: :unique, name: Backendstone.TransactionServerRegistry},
+        Backendstone.TransactionServerSupervisor
     ]
+
+    :ets.new(:transactions_table, [:public, :named_table])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

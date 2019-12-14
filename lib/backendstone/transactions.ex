@@ -6,8 +6,8 @@ defmodule Backendstone.Transactions do
   import Ecto.Query, warn: false
   alias Backendstone.Repo
 
+  alias Backendstone.{TransactionServer, TransactionServerSupervisor}
   alias Backendstone.Transactions.Transaction
-  alias Backendstone.Accounts.Account
   alias Backendstone.Accounts
   alias Backendstone.Email.{Email, Mailer}
   alias Decimal
@@ -92,6 +92,18 @@ defmodule Backendstone.Transactions do
 
   """
   def start_transaction(%Transaction{type_id: 1} = transaction, user) do
+    case TransactionServer.transaction_server_pid(transaction.account_id) do
+      pid when is_pid(pid) ->
+        IO.puts("ACHOU O POOLLL")
+      nil ->
+        case TransactionServerSupervisor.start_transaction_server(transaction.account_id, transaction) do
+          {:ok, _transaction_pid} ->
+            IO.puts("INICIOU O POOL DE TRANSACOES")
+
+          {:error, _error} ->
+            IO.puts("NAOOOOOO INICIOU O POOL DE TRANSACOES")
+        end
+    end
     get_transaction!(transaction.id)
     |> has_funds?()
     |> process_transaction()
@@ -241,27 +253,11 @@ defmodule Backendstone.Transactions do
     end
   end
 
-  @doc """
-  Add the initial status id on transaction.
-
-  ## Examples
-
-      iex> put_initial_transaction_status( %{"amount" => 100.0, "type" => %{"id" => 1}})
-      %{"amount" => 100.0, "type" => %{"id" => 1}, "transaction_status_id" =>  1}
-  """
   defp put_initial_transaction_status!(attrs) do
     attrs
     |> Map.put("transaction_status_id", @initial_transaction_status)
   end
 
-  @doc """
-  Add the account id on transaction.
-
-  ## Examples
-
-      iex> put_account!(%{"amount" => 100.0, "type" => %{"id" => 1}})
-      %{"amount" => 100.0, "type" => %{"id" => 1}, "account_id" =>  1}
-  """
   defp put_account!(attrs, user) do
     account = Accounts.get_account_by_user_id!(user.id)
 
