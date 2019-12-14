@@ -6,7 +6,7 @@ defmodule BackendstoneWeb.ReportsView do
       year: report["year"],
       month: report["month"],
       day: report["day"],
-      type_id: report["type_id"],
+      typae_id: report["type_id"],
       status_id: report["transaction_status_id"]}
   end
 
