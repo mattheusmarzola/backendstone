@@ -28,4 +28,4 @@ backendstone-*.tar
 /priv/static/
 
 #ignore postgres data
-/postgres/data/*
+/postgres/*
