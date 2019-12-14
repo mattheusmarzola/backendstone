@@ -25,5 +25,5 @@ jobs:
         gigalixir git:remote ${{ secrets.APP_NAME }}              
     - name: deploy                                                                         
       run: |
-        git checkout -b production                              
-        git push -f gigalixir production:master
+        git checkout -b master                              
+        git push -f gigalixir master:master
