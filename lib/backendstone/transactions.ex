@@ -91,7 +91,7 @@ defmodule Backendstone.Transactions do
       {:ok, %Transaction{}}
 
   """
-  def start_transaction(%Transaction{type_id: 1} = transaction, user) do
+  def start_transaction(%Transaction{transaction_status_id: 1} = transaction, user) do
     ###case TransactionServer.transaction_server_pid(transaction.account_id) do
     #  pid when is_pid(pid) ->
     #
