@@ -1,0 +1,29 @@
+name: gigalixir deploy
+
+on:
+  push:
+    branches:
+      - master              
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v1         
+      with:
+        python-version: '3.x'
+    - name: Install dependencies            
+      run: |
+        python -m pip install --upgrade pip
+        pip install gigalixir
+    - name: login gigalixir
+      run: |
+        gigalixir login -y -e ${{ secrets.GIGALIXIR_EMAIL }} -p ${{ secrets.GIGALIXIR_PASSWD }}   
+    - name: add remote
+      run: |
+        gigalixir git:remote ${{ secrets.APP_NAME }}              
+    - name: deploy                                                                         
+      run: |
+        git checkout -b production                              
+        git push -f gigalixir production:master
