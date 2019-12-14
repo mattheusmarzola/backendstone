@@ -26,8 +26,11 @@ defmodule Backendstone.Reports do
       {"day", value}, dynamic ->
         dynamic([t], ^dynamic and fragment("EXTRACT(DAY FROM updated_at) = ?", ^String.to_integer(value)))
 
-      {"status_id", value}, dynamic ->
+      {"transaction_status_id", value}, dynamic ->
         dynamic([t], ^dynamic and t.transaction_status_id == ^value)
+
+      {"type_id", value}, dynamic ->
+        dynamic([t], ^dynamic and t.type_id == ^value)
 
       {_, _}, dynamic ->
         dynamic
