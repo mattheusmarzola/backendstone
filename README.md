@@ -6,8 +6,11 @@ Projeto configurado para iniciar utilizando o docker-compose, com uma imagem do 
 Para iniciar o projeto localmente `docker-compose up`, o projeto sera iniciado na porta 4000 e o postgres na porta 15432
 
 Para se conectar na instancia do Postgres:
+
 User: postgres
+
 Pass: postgres
+
 Host: localhost:15432
 
 O deploy foi realizado utilizando o Gigalexir (https://gigalixir.com/) e para CD foi utilizado o GitHub Actions
