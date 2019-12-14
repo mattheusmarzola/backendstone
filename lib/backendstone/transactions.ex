@@ -92,18 +92,17 @@ defmodule Backendstone.Transactions do
 
   """
   def start_transaction(%Transaction{type_id: 1} = transaction, user) do
-    case TransactionServer.transaction_server_pid(transaction.account_id) do
-      pid when is_pid(pid) ->
-        IO.puts("ACHOU O POOLLL")
-      nil ->
-        case TransactionServerSupervisor.start_transaction_server(transaction.account_id, transaction) do
-          {:ok, _transaction_pid} ->
-            IO.puts("INICIOU O POOL DE TRANSACOES")
-
-          {:error, _error} ->
-            IO.puts("NAOOOOOO INICIOU O POOL DE TRANSACOES")
-        end
-    end
+    ###case TransactionServer.transaction_server_pid(transaction.account_id) do
+    #  pid when is_pid(pid) ->
+    #
+    #  nil ->
+    #   case TransactionServerSupervisor.start_transaction_server(transaction.account_id, transaction) do
+    #      {:ok, _transaction_pid} ->
+    #
+    #      {:error, _error} ->
+    #
+    #    end
+    #end
     get_transaction!(transaction.id)
     |> has_funds?()
     |> process_transaction()
