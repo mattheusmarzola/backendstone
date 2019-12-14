@@ -45,7 +45,9 @@ defmodule Backendstone.MixProject do
       {:comeonin, "~> 5.1"},
       {:argon2_elixir, "~> 2.1"},
       {:bamboo, "~> 1.3"},
-      {:distillery, "~> 2.1"}
+      {:distillery, "~> 2.1"},
+      {:earmark, "~> 1.2", only: :dev},
+      {:ex_doc, "~> 0.19", only: :dev}
     ]
   end
 

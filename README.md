@@ -1,19 +1,21 @@
-# Backendstone
+# Desafio Backend Stone
 
-To start your Phoenix server:
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server`
+Projeto configurado para iniciar utilizando o docker-compose, com uma imagem do Elixir:latest, e a instalação do Phoenix 1.4.11, e uma imagem do Postgres.
+Para iniciar o projeto localmente `docker-compose up`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+O deploy foi realizado utilizando o Gigalexir (https://gigalixir.com/) e para CD foi utilizado o GitHub Actions
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Link para a documentacao da API: https://documenter.getpostman.com/view/5027528/SWE9Zx5s?version=latest#e59fc4b3-6cdd-4100-974f-b4a6c9ee3be8
 
-## Learn more
+Link para a api publicada: https://lightslategray-stylish-catbird.gigalixirapp.com/
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+A documentacao gerada se encontra em doc/index.html
+
+Obs.:
+Ficaram dois itens pendentes:
+
+Finalizacao da implementacao do Genserver para processar as transacoes em fila, utilizando uma fila por conta, para garantir que duas transacoes nao alterem o saldo da mesma conta.
+
+Finalizacao da implementacao dos testes.
+
