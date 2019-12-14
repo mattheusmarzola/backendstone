@@ -24,7 +24,7 @@ A documentacao gerada se encontra em doc/index.html
 Obs.:
 Ficaram dois itens pendentes:
 
-Finalizacao da implementacao do Genserver para processar as transacoes em fila, utilizando uma fila por conta, para garantir que duas transacoes nao alterem o saldo da mesma conta.
+Finalizacao da implementacao do Genserver para processar as transacoes em fila, utilizando uma fila por conta, para garantir que duas transacoes nao alterem o saldo da conta ao mesmo tempo.
 
 Finalizacao da implementacao dos testes.
 
