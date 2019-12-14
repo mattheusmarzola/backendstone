@@ -2,7 +2,7 @@ version: "3"
 services:
   phoenix:
     build:
-      context: ./phoenix
+      context: .
     volumes:
       - ".:/app"
     ports:
