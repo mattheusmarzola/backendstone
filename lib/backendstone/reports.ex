@@ -5,6 +5,21 @@ defmodule Backendstone.Reports do
 
   alias Backendstone.Transactions.Transaction
 
+
+  @doc """
+  Returns the report data of transactions.
+  The parameter is a map with a list of attributes to filter on. 
+  If the value 0 is entered to a attribute, it will be ignored in the filter.
+  
+  They accepted attributes: :year, :month, :day, :transaction_status_id, :type_id.
+
+  Returns a decimal with total amount of transactions
+  ## Examples
+
+      iex> list_transactions([year: 2019, month: 12, day: 0])
+      #Decimal<2600.0>
+
+  """
   def total_transaction(params) do
     Transaction
      |> select([t], sum(t.amount))
@@ -12,7 +27,7 @@ defmodule Backendstone.Reports do
      |> Repo.one()
   end
 
-  def filter_total_transactions(params) do
+  defp filter_total_transactions(params) do
     Enum.reduce(params, dynamic(true), fn
       {_, "0"}, dynamic ->
         dynamic
