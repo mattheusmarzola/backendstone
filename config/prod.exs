@@ -15,7 +15,8 @@ config :backendstone, BackendstoneWeb.Endpoint,
   server: true, # Without this line, your app will not start the web server!
   secret_key_base: "${SECRET_KEY_BASE}",
   url: [host: "${APP_NAME}.gigalixirapp.com", port: 443],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  debug_errors: true,
 
 
 config :backendstone, Backendstone.Repo,
