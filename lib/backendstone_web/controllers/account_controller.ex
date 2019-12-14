@@ -20,8 +20,10 @@ defmodule BackendstoneWeb.AccountController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    account = Accounts.get_account!(id)
+  def show(conn, _params) do
+    user = Guardian.Plug.current_resource(conn)
+
+    account = Accounts.get_account_by_user_id!(user.id)
     render(conn, "show.json", account: account)
   end
 
