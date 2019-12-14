@@ -44,7 +44,8 @@ defmodule Backendstone.MixProject do
       {:guardian, "~> 2.0"},
       {:comeonin, "~> 5.1"},
       {:argon2_elixir, "~> 2.1"},
-      {:bamboo, "~> 1.3"}
+      {:bamboo, "~> 1.3"},
+      {:distillery, "~> 2.1"}
     ]
   end
 
