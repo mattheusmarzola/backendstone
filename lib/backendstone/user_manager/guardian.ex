@@ -8,17 +8,10 @@ defmodule Backendstone.UserManager.Guardian do
     {:ok, sub}
   end
 
-  def subject_for_token(_, _) do
-    {:error, :resource_not_found}
-  end
-
   def resource_from_claims(claims) do
     id = claims["sub"]
     resource = UserManager.get_user!(id)
     {:ok,  resource}
   end
 
-  def resource_from_claims(_claims) do
-    {:error, :resource_not_found}
-  end
 end

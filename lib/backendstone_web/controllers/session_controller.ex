@@ -2,9 +2,7 @@ defmodule BackendstoneWeb.SessionController do
   use BackendstoneWeb, :controller
 
   alias Backendstone.{UserManager,
-    UserManager.User,
-    UserManager.Guardian,
-    UserManager.ErrorHandler}
+    UserManager.Guardian}
 
   def login(conn, %{"user" => %{"username" => username, "password" => password}}) do
     UserManager.authenticate_user(username, password)
@@ -25,7 +23,7 @@ defmodule BackendstoneWeb.SessionController do
     |> render("jwt.json", jwt: token)
   end
 
-  defp login_reply({:error, reason}, _conn) do
+  defp login_reply({:error, _reason}, _conn) do
     {:error, :unauthorized}
   end
 

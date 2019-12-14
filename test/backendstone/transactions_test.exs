@@ -2,21 +2,33 @@ defmodule Backendstone.TransactionsTest do
   use Backendstone.DataCase
 
   alias Backendstone.Transactions
+
   alias Backendstone.UserManagerTest
 
   describe "transactions" do
     alias Backendstone.Transactions.Transaction
 
-    @valid_attrs %{target_account_id: 42, amount: "120.5"}
+    @valid_attrs %{target_account_id: 42, amount: "120.5", type_id: 1, transaction_status_id: 1}
     @update_attrs %{target_account_id: 43, amount: "456.7"}
     @invalid_attrs %{target_account_id: nil, amount: nil}
-
+    @valid_attrs_status %{id: 1, name: "Pending"}
+    @valid_attrs_type %{id: 1, name: "Transference"}
+    
     def transaction_fixture(attrs \\ %{}) do
       attrs =
         attrs
         |> Enum.into(@valid_attrs)
 
+
+      {:ok, status} = Transactions.create_transaction_status(@valid_attrs_status)
+      {:ok, type} = Transactions.create_type(@valid_attrs_type)
+
+      attrs =
+        %{transaction_status_id: status.id, type_id: type.id}
+        |> Enum.into(@valid_attrs)
+
       user = UserManagerTest.user_fixture()
+      IO.inspect(attrs)
       {:ok, transaction} = Transactions.create_transaction(user, attrs)
 
       transaction
@@ -34,7 +46,6 @@ defmodule Backendstone.TransactionsTest do
 
     test "create_transaction/1 with valid data creates a transaction" do
       assert {:ok, %Transaction{} = transaction} = Transactions.create_transaction(@valid_attrs)
-      assert transaction.target_account_id == 42
       assert transaction.amount == Decimal.new("120.5")
     end
 
@@ -44,8 +55,13 @@ defmodule Backendstone.TransactionsTest do
 
     test "update_transaction/2 with valid data updates the transaction" do
       transaction = transaction_fixture()
-      assert {:ok, %Transaction{} = transaction} = Transactions.update_transaction(transaction, @update_attrs)
-      assert transaction.target_account_id == 43
+
+      attrs = 
+        %{transaction_status_id: transaction.transaction_status_id, type_id: transaction.type_id}
+        |> Enum.into(@update_attrs)
+
+
+      assert {:ok, %Transaction{} = transaction} = Transactions.update_transaction(transaction, attrs)
       assert transaction.amount == Decimal.new("456.7")
     end
 
