@@ -5,6 +5,9 @@ services:
       context: .
     volumes:
       - ".:/app"
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    stdin_open: true
+    tty: true
     ports:
       - "4000:4000"
     depends_on:
@@ -16,7 +19,7 @@ services:
       DATABASE_PASSWORD: postgres
       DATABASE_USERNAME: postgres
       DATABASE_DB: backendstone
-
+      DISPLAY: unix:0
     command: 
       - ./entrypoint.sh
   db:
