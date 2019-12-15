@@ -98,15 +98,15 @@ defmodule Backendstone.Transactions do
         TransactionServer.make_transaction(transaction.account_id)
       nil ->
         case TransactionServerSupervisor.start_transaction_server(transaction.account_id, %{parent: self(), transaction: transaction}) do
-          {:ok, _transaction_pid} -> 
+          {:ok, _transaction_pid} ->
             TransactionServer.make_transaction(transaction.account_id)
           {:error, _error} ->
-            IO.inspect(_error)  
+            IO.inspect(_error)
         end
     end
     handle_response_transaction(transaction, user)
   end
-  
+
   def handle_start_transaction(%Transaction{transaction_status_id: 1} = transaction) do
     get_transaction!(transaction.id)
     |> has_funds?()
@@ -117,12 +117,12 @@ defmodule Backendstone.Transactions do
   def handle_response_transaction(transaction, user) do
     transaction = get_transaction!(transaction.id)
     receive do
-      {:ok, transaction}  -> 
+      {:ok, transaction}  ->
         {:ok, transaction}
     after
       100000 -> IO.puts "no response"
     end
-    
+
     send_email({:ok, transaction}, user)
   end
 
@@ -140,12 +140,13 @@ defmodule Backendstone.Transactions do
   """
   def has_funds?(%Transaction{type_id: @transaction_type_deposit} = transaction), do: {:ok, transaction}
   def has_funds?(%Transaction{} = transaction) do
-    has_funds =
+    funds =
       Decimal.new(transaction.account.balance)
       |> Decimal.sub(transaction.amount)
-      |> Decimal.positive?()
 
-    case has_funds do
+
+    case Decimal.gt?(Decimal.new(funds), Decimal.new("0")) ||
+          Decimal.eq?(Decimal.new(funds), Decimal.new("0")) do
       true -> {:ok, transaction}
       false -> {:without_funds, transaction}
     end
@@ -178,7 +179,7 @@ defmodule Backendstone.Transactions do
 
   @doc """
   Receive a account and a deposit transaction, calling Accounts context to handler the operation.
-  Returns a transaction if :ok. 
+  Returns a transaction if :ok.
 
   ##Exemples
       iex> process_transaction(%Transaction{}, %Account{})
@@ -231,7 +232,7 @@ defmodule Backendstone.Transactions do
   def send_email({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
   def send_email({:ok, %Transaction{type_id: @transaction_type_withdrawal} = transaction}, user) do
     case transaction do
-      %Transaction{type_id: @transaction_type_withdrawal} ->  
+      %Transaction{type_id: @transaction_type_withdrawal} ->
         Email.withdrawal_email(user, transaction)
          |> Mailer.deliver_now()
       _ -> {:ok, transaction}
@@ -243,7 +244,7 @@ defmodule Backendstone.Transactions do
 
   @doc """
   Recives {:without_funds, %Transaction{} = transaction} and updating transaction status to Denied
-  
+
   ##Exemples
 
     iex> process_transference({:without_funds, %Transaction{}}, %User{})
@@ -257,7 +258,7 @@ defmodule Backendstone.Transactions do
 
   @doc """
   Recives {:ok, %Transaction{} = transaction} and updating transaction status to Executed
-  
+
   ##Exemples
 
     iex> process_transference({:ok, %Transaction{}}, %User{})
