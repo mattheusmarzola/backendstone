@@ -92,22 +92,38 @@ defmodule Backendstone.Transactions do
 
   """
   def start_transaction(%Transaction{transaction_status_id: 1} = transaction, user) do
-    ###case TransactionServer.transaction_server_pid(transaction.account_id) do
-    #  pid when is_pid(pid) ->
-    #
-    #  nil ->
-    #   case TransactionServerSupervisor.start_transaction_server(transaction.account_id, transaction) do
-    #      {:ok, _transaction_pid} ->
-    #
-    #      {:error, _error} ->
-    #
-    #    end
-    #end
+    case TransactionServer.transaction_server_pid(transaction.account_id) do
+      pid when is_pid(pid) ->
+        TransactionServer.add_transaction(transaction.account_id, %{parent: self(), transaction: transaction})
+        TransactionServer.make_transaction(transaction.account_id)
+      nil ->
+        case TransactionServerSupervisor.start_transaction_server(transaction.account_id, %{parent: self(), transaction: transaction}) do
+          {:ok, _transaction_pid} -> 
+            TransactionServer.make_transaction(transaction.account_id)
+          {:error, _error} ->
+            IO.inspect(_error)  
+        end
+    end
+    handle_response_transaction(transaction, user)
+  end
+  
+  def handle_start_transaction(%Transaction{transaction_status_id: 1} = transaction) do
     get_transaction!(transaction.id)
     |> has_funds?()
     |> process_transaction()
-    |> send_email(user)
     |> finalize_transaction()
+  end
+
+  def handle_response_transaction(transaction, user) do
+    transaction = get_transaction!(transaction.id)
+    receive do
+      {:ok, transaction}  -> 
+        {:ok, transaction}
+    after
+      100000 -> IO.puts "no response"
+    end
+    
+    send_email({:ok, transaction}, user)
   end
 
   @doc """
@@ -215,8 +231,9 @@ defmodule Backendstone.Transactions do
   def send_email({:without_funds, %Transaction{} = transaction}, _), do: {:without_funds, transaction}
   def send_email({:ok, %Transaction{type_id: @transaction_type_withdrawal} = transaction}, user) do
     case transaction do
-      %Transaction{type_id: @transaction_type_withdrawal} ->  Email.withdrawal_email(user, transaction)
-                                                               |> Mailer.deliver_now()
+      %Transaction{type_id: @transaction_type_withdrawal} ->  
+        Email.withdrawal_email(user, transaction)
+         |> Mailer.deliver_now()
       _ -> {:ok, transaction}
     end
 

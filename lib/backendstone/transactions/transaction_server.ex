@@ -7,7 +7,9 @@ defmodule Backendstone.TransactionServer do
 
   require Logger
 
-  @timeout :timer.minutes(5)
+  alias Backendstone.Transactions
+
+  @timeout :timer.seconds(100)
 
   # Client (Public) Interface
 
@@ -26,6 +28,10 @@ defmodule Backendstone.TransactionServer do
 
   def add_transaction(account_id, transaction) do
     GenServer.call(via_tuple(account_id), {:add_transaction, transaction})
+  end
+
+  def make_transaction(account_id) do
+    GenServer.call(via_tuple(account_id), {:make_transaction})
   end
 
   @doc """
@@ -52,14 +58,12 @@ defmodule Backendstone.TransactionServer do
       case :ets.lookup(:transactions_table, account_id) do
         [] -> 
           :ets.insert(:transactions_table, {account_id, [transaction]})
-          [transaction]
-
+          transaction
         [{^account_id, [transaction]}] -> 
-          [transaction]
+          transaction
     end
 
     Logger.info("Spawned transaction server process named '#{account_id}'.")
-
     {:ok, [transaction], @timeout}
   end
 
@@ -75,18 +79,38 @@ defmodule Backendstone.TransactionServer do
     {:reply, summarize(new_transactions), new_transactions, @timeout}
   end
 
+  def handle_call({:make_transaction}, _from, transactions) do
+    transactions = handle_transaction(transactions)
+
+    {:reply, summarize(transactions), transactions, @timeout}
+  end
+  
+  defp handle_transaction([]), do: [] 
+  defp handle_transaction([transaction | transactions]) do 
+    parent = transaction.parent
+    case Transactions.handle_start_transaction(transaction.transaction) do
+      {:ok, transaction} ->
+        send(parent, {:ok, transaction})
+    end    
+    transactions
+  end
+
   def summarize(transactions) do
     transactions
       |> Enum.map(fn t -> 
         %{
-        type_id: t.type_id,
-        amount: t.amount,
-        account_id: t.account_id
+        type_id: t.transaction.type_id,
+        amount: t.transaction.amount,
+        account_id: t.transaction.account_id
         } end)
   end
 
   def handle_info(:timeout, [transactions]) do
     {:stop, {:shutdown, :timeout}, transactions}
+  end
+
+  def handle_info(:timeout) do
+    {:stop, {:shutdown, :timeout}}
   end
 
   def terminate({:shutdown, :timeout}, _transactions) do

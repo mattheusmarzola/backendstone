@@ -18,10 +18,10 @@ defmodule Backendstone.TransactionServerSupervisor do
   @doc """
   Starts a `TransactionServer` process and supervises it.
   """
-  def start_transaction_server(account_id, size) do
+  def start_transaction_server(account_id, intial_state) do
     child_spec = %{
       id: TransactionServer, 
-      start: {TransactionServer, :start_link, [account_id, size]},
+      start: {TransactionServer, :start_link, [account_id, intial_state]},
       restart: :transient
     }
 
