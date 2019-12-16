@@ -98,8 +98,6 @@ defmodule Backendstone.Transactions do
         case TransactionServerSupervisor.start_transaction_server(transaction.account_id, %{parent: self(), transaction: transaction}) do
           {:ok, _transaction_pid} ->
             TransactionServer.make_transaction(transaction.account_id)
-          {:error, _error} ->
-            IO.inspect(_error)
         end
     end
     handle_response_transaction(transaction, user)
