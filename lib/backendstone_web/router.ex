@@ -34,7 +34,7 @@ defmodule BackendstoneWeb.Router do
     get "/users", UserController, :show
     get "/accounts", AccountController, :show
 
-    resources "/transactions", TransactionController, [:create, :show]
+    resources "/transactions", TransactionController, only: [:create, :show]
 
     get "/types/transactions/", TypeController, :index
     get "/status/transactions/", TransactionStatusController, :index
