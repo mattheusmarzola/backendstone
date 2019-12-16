@@ -79,11 +79,9 @@ defmodule Backendstone.Transactions do
   end
 
   @doc """
-  Start the processing of a transaction. Only accepts transaction with status Pending
-
-  The process consist in load the transaction from data base, valid funds if necessary,
-   processes the transaction, send e-mail to user account and finalize the transaction updating his status.
-
+  Starts a new a GenServer process (Backendstone.TransactionServer) to manager queue of transactions.
+  If alredy exists a process, add a new transaction to queue and make a :make_transaction call.
+  After start the process, calls handle_response_transaction/2 to handle the response.
 
   ## Example
 
@@ -107,6 +105,19 @@ defmodule Backendstone.Transactions do
     handle_response_transaction(transaction, user)
   end
 
+  @doc """
+  Start the processing of a transaction. Only accepts transaction with status Pending
+
+  The process consist in load the transaction from data base, valid funds if necessary,
+   processes the transaction, send e-mail to user account and finalize the transaction updating his status.
+
+
+  ## Example
+
+      iex> start_transaction(%Transaction{type_id: 1}, %User{})
+      {:ok, %Transaction{}}
+
+  """
   def handle_start_transaction(%Transaction{transaction_status_id: 1} = transaction) do
     get_transaction!(transaction.id)
     |> has_funds?()
@@ -114,13 +125,25 @@ defmodule Backendstone.Transactions do
     |> finalize_transaction()
   end
 
+  @doc """
+  Recives the response from GenServer process (Backendstone.TransactionServer) whith processed transactions.
+  If don't recives a response in 30 seconds, sends a error and instructions to consult transaction later.
+
+  ## Example
+
+      iex> start_transaction(%Transaction{type_id: 1}, %User{})
+      {:ok, %Transaction{}}
+
+      iex> start_transaction(%Transaction{type_id: 1}, %User{})
+      {:error, "Cannot respond, consult the transaction to verify status."}
+  """
   def handle_response_transaction(transaction, user) do
     transaction = get_transaction!(transaction.id)
     receive do
       {:ok, transaction}  ->
         {:ok, transaction}
     after
-      100000 -> IO.puts "no response"
+      30000 -> {:error, "Cannot respond, consult the transaction to verify status."}
     end
 
     send_email({:ok, transaction}, user)
