@@ -24,10 +24,10 @@ A documentação gerada se encontra em doc/index.html
 Obs.:
 Ficaram dois itens pendentes:
 
-Finalização da implementação do GenServer para processar as transacoes em fila, utilizando uma fila por conta, para garantir 
+1) Finalização da implementação do GenServer para processar as transacoes em fila, utilizando uma fila por conta, para garantir 
 que duas transações nao alterem o saldo da conta ao mesmo tempo.
 
 Edit1: Finalizei a implementação do GenServer neste domingo.
 
-Finalização da implementação dos testes.
+2) Finalização da implementação dos testes.
 
