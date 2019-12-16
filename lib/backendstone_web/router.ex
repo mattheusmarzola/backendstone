@@ -15,7 +15,7 @@ defmodule BackendstoneWeb.Router do
   scope "/backoffice", BackendstoneWeb do
     pipe_through :api
 
-    get "/total_transactions/:year/:month/:day/:type_id/:sttransaction_status_idatus_id", ReportsController, :total_transactions
+    get "/total_transactions/:year/:month/:day/:type_id/:transaction_status_id", ReportsController, :total_transactions
   end
 
   scope "/api/v1", BackendstoneWeb do
