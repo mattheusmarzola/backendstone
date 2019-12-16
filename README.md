@@ -15,7 +15,7 @@ Host: localhost:15432
 
 O deploy foi realizado utilizando o Gigalexir (https://gigalixir.com/) e para CD foi utilizado o GitHub Actions
 
-Link para a documentação da API: https://documenter.getpostman.com/view/5027528/SWE9Zx5s?version=latest#e59fc4b3-6cdd-4100-974f-b4a6c9ee3be8
+Link para a documentação da API: https://documenter.getpostman.com/view/5027528/SWEB1azi?version=latest
 
 Link para a API publicada: https://lightslategray-stylish-catbird.gigalixirapp.com/
 
