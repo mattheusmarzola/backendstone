@@ -1,7 +1,7 @@
 # Desafio Backend Stone
 
 
-Projeto configurado para iniciar utilizando o docker-compose, com uma imagem do Elixir:latest, e a instalação do Phoenix 1.4.11, e uma imagem do Postgres.
+Projeto configurado para utilizar no ambiente de desenvolimento o docker-compose, com uma imagem do Elixir:latest, e a instalação do Phoenix 1.4.11, e uma imagem do Postgres.
 
 Para iniciar o projeto localmente `docker-compose up`, o projeto sera iniciado na porta 4000 e o postgres na porta 15432
 
